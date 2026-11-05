@@ -58,100 +58,82 @@ def render_stats(totals):
     )
     return (
         '<picture>\n'
-        '  <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="assets/profile-dark-mobile.svg">\n'
-        '  <source media="(max-width: 600px)" srcset="assets/profile-light-mobile.svg">\n'
-        '  <source media="(prefers-color-scheme: dark)" srcset="assets/profile-dark.svg">\n'
-        f'  <img src="assets/profile-light.svg" width="960" alt="{description}">\n'
+        '  <source media="(max-width: 600px)" srcset="assets/profile-dark-mobile.svg">\n'
+        f'  <img src="assets/profile-dark.svg" width="960" alt="{description}">\n'
         '</picture>'
     )
 
 
-def render_artwork(totals, dark=False, mobile=False):
-    background, ink, muted, rule = (
-        ("#0d1117", "#eeeaf8", "#b0adbf", "#303341") if dark
-        else ("#ffffff", "#303348", "#77798a", "#e9e7ee")
+def render_artwork(totals, dark=True, mobile=False):
+    width, height = (480, 560) if mobile else (960, 480)
+    right = 432 if mobile else 872
+    avatar_transform = (
+        "translate(-74 -4) scale(.6)" if mobile
+        else "translate(368 0) scale(.6)"
     )
-    accent = "#c1b2eb" if dark else "#74649c"
-    width, height = (480, 490) if mobile else (960, 408)
-    name_x, name_y = (22, 113) if mobile else (37, 146)
-    name_size, chinese_size = (74, 24) if mobile else (100, 29)
-    text_x, chinese_y, bio_y = (24, 166, 210) if mobile else (43, 199, 241)
-    mascot_transform = "translate(-100 18) scale(.6)" if mobile else "translate(0 0)"
-    line = "M24 254 H456" if mobile else "M40 290 H920"
+    name_y, tagline_y, bio_y = (215, 258, 294) if mobile else (216, 263, 301)
+    name_size = 54 if mobile else 62
+    tagline_size = 25 if mobile else 28
+    rule_y = 340 if mobile else 352
     metrics = "\n".join(
-        f'<g transform="translate({24 + (index % 2) * 240 if mobile else 40 + index * 230} {318 + (index // 2) * 105 if mobile else 350})">'
-        f'<text class="number" y="0">{totals[key]:,}</text>'
-        f'<text class="label" y="29">{label}</text></g>'
+        f'<g text-anchor="end" transform="translate('
+        f'{216 + (index % 2) * 216 if mobile else 224 + index * 216} '
+        f'{403 + (index // 2) * 94 if mobile else 411})">'
+        f'<text class="number">{totals[key]:,}</text>'
+        f'<text class="label" y="27">{label}</text></g>'
         for index, (key, label) in enumerate((
             ("stars", "stars"), ("forks", "forks"),
-            ("followers", "followers"), ("repositories", "public repositories"),
+            ("followers", "followers"), ("repositories", "public repos"),
         ))
     )
     return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}" role="img" aria-labelledby="title description">
 <title id="title">Jaeger — 一只好奇的猴子。</title>
-<desc id="description">Software engineer in Shanghai. {totals['stars']:,} stars, {totals['forks']:,} forks, {totals['followers']:,} followers and {totals['repositories']:,} public repositories. A curious little monkey holds a peach.</desc>
+<desc id="description">Software engineer in Shanghai. {totals['stars']:,} stars, {totals['forks']:,} forks, {totals['followers']:,} followers and {totals['repositories']:,} public repositories. A silver monkey on a deep black background.</desc>
 <style>
-  text {{ font-family: 'Avenir Next', Avenir, 'Trebuchet MS', sans-serif; fill: {ink}; }}
-  .name {{ font-size: {name_size}px; font-weight: 700; letter-spacing: -4px; }}
-  .chinese {{ font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; font-size: {chinese_size}px; font-weight: 500; fill: {accent}; }}
-  .bio {{ font-size: 19px; fill: {muted}; }}
-  .number {{ font-size: 39px; font-weight: 600; letter-spacing: -1px; }}
-  .label {{ font-size: {18 if mobile else 16}px; fill: {muted}; }}
-  .eyes {{ transform-box: fill-box; transform-origin: center; animation: blink 8s infinite; }}
-  @keyframes blink {{ 0%, 43%, 47%, 100% {{ transform: scaleY(1); }} 45% {{ transform: scaleY(.12); }} }}
+  text {{ font-family: 'Helvetica Neue', 'Segoe UI', Arial, sans-serif; fill: #e9e9e9; font-weight: 300; }}
+  .name {{ font-size: {name_size}px; letter-spacing: 3px; }}
+  .tagline {{ font-family: 'PingFang SC', 'Noto Sans CJK SC', 'Microsoft YaHei', sans-serif; font-size: {tagline_size}px; letter-spacing: 2px; }}
+  .bio {{ font-size: {17 if mobile else 18}px; letter-spacing: .6px; fill: #a7a7a7; }}
+  .number {{ font-size: {34 if mobile else 35}px; letter-spacing: .5px; }}
+  .label {{ font-size: {17 if mobile else 16}px; letter-spacing: .5px; fill: #a7a7a7; }}
+  .eyes {{ transform-box: fill-box; transform-origin: center; animation: blink 9s infinite; }}
+  @keyframes blink {{ 0%, 43%, 47%, 100% {{ transform: scaleY(1); }} 45% {{ transform: scaleY(.15); }} }}
   @media (prefers-reduced-motion: reduce) {{ .eyes {{ animation: none; }} }}
 </style>
-<rect width="{width}" height="{height}" fill="{background}"/>
-<text class="name" x="{name_x}" y="{name_y}">Jaeger<tspan fill="{accent}">.</tspan></text>
-<text class="chinese" x="{text_x}" y="{chinese_y}">一只好奇的猴子。</text>
-<text class="bio" x="{text_x}" y="{bio_y}">Software engineer in Shanghai.</text>
+<rect width="{width}" height="{height}" fill="#151515"/>
 
-<g transform="{mascot_transform}">
-<g stroke="#464057" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round">
-  <path d="M795 235 C867 255 894 211 875 189 C860 171 836 184 847 202 C852 210 863 209 866 202" fill="none" stroke="#9787b8" stroke-width="14"/>
-  <path d="M719 171 C688 188 686 229 708 251 C722 266 783 268 803 250 C823 232 815 185 790 173 Z" fill="#9787b8"/>
-  <ellipse cx="754" cy="224" rx="35" ry="34" fill="#f7e6ce" stroke="none"/>
-  <path d="M715 244 C700 241 685 251 691 261 C697 270 724 264 734 258" fill="#9787b8"/>
-  <path d="M782 251 C797 242 815 247 816 257 C815 269 789 267 777 260" fill="#9787b8"/>
-  <ellipse cx="687" cy="121" rx="23" ry="25" fill="#9787b8"/>
-  <ellipse cx="820" cy="121" rx="23" ry="25" fill="#9787b8"/>
-  <ellipse cx="688" cy="122" rx="11" ry="13" fill="#e5c8d8" stroke="none"/>
-  <ellipse cx="819" cy="122" rx="11" ry="13" fill="#e5c8d8" stroke="none"/>
-  <path d="M691 113 C685 70 714 47 752 49 C793 44 824 75 816 119 C825 151 800 179 756 181 C713 181 682 154 691 113 Z" fill="#9787b8"/>
+<g transform="{avatar_transform}" stroke="#aeb2b8" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+  <ellipse cx="687" cy="121" rx="23" ry="25" fill="#151515"/>
+  <ellipse cx="820" cy="121" rx="23" ry="25" fill="#151515"/>
+  <path d="M688 109 C678 108 676 129 687 132 M820 109 C831 108 832 129 821 132" fill="none" stroke="#72777e"/>
+  <path d="M691 113 C685 70 714 47 752 49 C793 44 824 75 816 119 C825 151 800 179 756 181 C713 181 682 154 691 113 Z" fill="#1e1e1e"/>
   <path d="M744 53 C746 38 758 36 765 44 M754 50 C768 34 779 40 778 48" fill="none"/>
-  <path d="M754 95 C736 73 703 86 707 115 C693 137 713 164 754 164 C793 164 813 137 800 116 C805 87 773 73 754 95 Z" fill="#f7e6ce" stroke="none"/>
-  <g class="eyes" fill="#464057" stroke="none">
-    <ellipse cx="734" cy="119" rx="4.5" ry="6.8"/>
-    <ellipse cx="775" cy="116" rx="4.5" ry="6.8"/>
+  <path d="M754 95 C736 73 703 86 707 115 C693 137 713 164 754 164 C793 164 813 137 800 116 C805 87 773 73 754 95 Z" fill="#151515" stroke="#72777e" stroke-width="2"/>
+  <g class="eyes" fill="#cfd1d4" stroke="none">
+    <ellipse cx="734" cy="119" rx="3.8" ry="5.7"/>
+    <ellipse cx="775" cy="116" rx="3.8" ry="5.7"/>
   </g>
-  <path d="M726 102 Q732 98 739 100 M768 98 Q775 95 781 99" fill="none" stroke-width="2.8"/>
-  <path d="M749 135 Q754 138 759 134 M738 145 Q755 158 774 140" fill="none" stroke-width="2.8"/>
-  <ellipse cx="717" cy="137" rx="8" ry="4.8" fill="#edb7b7" stroke="none"/>
-  <ellipse cx="791" cy="134" rx="8" ry="4.8" fill="#edb7b7" stroke="none"/>
-  <path d="M710 187 C694 200 698 218 730 226 M795 187 C810 203 800 222 778 227" fill="none" stroke="#9787b8" stroke-width="18"/>
-  <path d="M755 208 C730 191 710 212 726 234 C735 249 751 247 755 245 C763 249 779 247 788 233 C801 209 778 191 755 208 Z" fill="#f2b2ac" stroke-width="3"/>
-  <path d="M755 210 C760 221 758 232 754 238" fill="none" stroke="#d88d98" stroke-width="2.3"/>
-  <path d="M756 207 C753 193 768 184 781 187 C777 202 765 205 756 207 Z" fill="#8daf96" stroke-width="2.6"/>
-  <ellipse cx="726" cy="222" rx="10" ry="8" fill="#f7e6ce" stroke-width="2.8"/>
-  <ellipse cx="784" cy="222" rx="10" ry="8" fill="#f7e6ce" stroke-width="2.8"/>
+  <path d="M726 102 Q732 98 739 100 M768 98 Q775 95 781 99" fill="none" stroke-width="2.2"/>
+  <path d="M749 135 Q754 138 759 134 M738 145 Q755 158 774 140" fill="none" stroke-width="2.2"/>
 </g>
-<path d="M850 73 Q853 63 861 62 M866 86 l9 -2" fill="none" stroke="{accent}" stroke-width="3.5" stroke-linecap="round"/>
-</g>
-<path d="{line}" stroke="{rule}"/>
+
+<text class="name" x="{right}" y="{name_y}" text-anchor="end">Jaeger</text>
+<text class="tagline" x="{right}" y="{tagline_y}" text-anchor="end">一只好奇的猴子。</text>
+<text class="bio" x="{right}" y="{bio_y}" text-anchor="end">Software engineer in Shanghai.</text>
+<path d="M{40 if mobile else 88} {rule_y} H{right}" fill="none" stroke="#525252" stroke-width="1"/>
 {metrics}
 </svg>\n'''
 
 
 def update_artwork(directory, totals):
     directory.mkdir(parents=True, exist_ok=True)
-    for theme in ("light", "dark"):
-        for mobile in (False, True):
-            suffix = "-mobile" if mobile else ""
-            path = directory / f"profile-{theme}{suffix}.svg"
-            content = render_artwork(totals, dark=theme == "dark", mobile=mobile)
-            if not path.exists() or path.read_text(encoding="utf-8") != content:
-                path.write_text(content, encoding="utf-8")
-                print(f"Updated {theme}{suffix} profile artwork")
+    for mobile in (False, True):
+        suffix = "-mobile" if mobile else ""
+        path = directory / f"profile-dark{suffix}.svg"
+        content = render_artwork(totals, mobile=mobile)
+        if not path.exists() or path.read_text(encoding="utf-8") != content:
+            path.write_text(content, encoding="utf-8")
+            print(f"Updated black{suffix} profile artwork")
 
 
 def update_readme(path, totals):

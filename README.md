@@ -1,5 +1,3 @@
-👋 Hey, I'm **Jaeger**, a software engineer based in **Shanghai**. I build apps and tools, and write about what I learn along the way.
-
 <!-- stats:start -->
 <picture>
   <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="assets/profile-dark-mobile.svg">
@@ -9,4 +7,8 @@
 </picture>
 <!-- stats:end -->
 
-[Writing](https://jaeger.itscoder.com/blog/) · [X](https://x.com/imhouzi)
+<p align="center">
+  <a href="https://jaeger.itscoder.com/blog/">Blog ↗</a>
+  &nbsp;&nbsp; / &nbsp;&nbsp;
+  <a href="https://x.com/imhouzi">X ↗</a>
+</p>

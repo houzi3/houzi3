@@ -41,6 +41,8 @@ class Pictures(HTMLParser):
 class ProfileTests(unittest.TestCase):
     def test_theme_fragments_follow_github_theme_without_os_color_queries(self):
         rendered = profile.render_stats(TOTALS)
+        self.assertTrue(rendered.startswith("<div>\n"))
+        self.assertTrue(rendered.endswith("\n</div>"))
         self.assertNotIn("prefers-color-scheme", rendered)
         self.assertEqual(rendered.count("</picture></a><a "), 2)
         self.assertEqual(rendered.count("<br>"), 1)

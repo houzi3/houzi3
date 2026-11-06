@@ -1,4 +1,5 @@
 <!-- stats:start -->
+<div>
 <a href="assets/profile-light.gif#gh-light-mode-only"><picture>
   <source media="(max-width: 600px) and (prefers-reduced-motion: reduce)" srcset="assets/profile-light-mobile.png#gh-light-mode-only">
   <source media="(prefers-reduced-motion: reduce)" srcset="assets/profile-light.png#gh-light-mode-only">
@@ -18,6 +19,7 @@
   <source media="(max-width: 600px)" srcset="assets/stats-dark-mobile.svg#gh-dark-mode-only">
   <img src="assets/stats-dark.svg#gh-dark-mode-only" width="960" alt="11,047 stars · 2,082 forks · 850 followers · 32 public repos">
 </picture></a>
+</div>
 <!-- stats:end -->
 
 <p align="center">

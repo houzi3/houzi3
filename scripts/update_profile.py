@@ -89,8 +89,9 @@ def render_stats(totals):
             "</picture>",
         ])
         statistics.append(f'<a href="assets/stats-{theme}.svg{fragment}">{stats}</a>')
-    # Keep alternative themes adjacent so hidden pictures leave no blank rows.
-    return "".join(heroes) + "\n<br>\n" + "".join(statistics)
+    # A block container keeps Markdown from splitting the first inline link and
+    # picture into separate paragraphs. Adjacent themes leave no blank rows.
+    return "<div>\n" + "".join(heroes) + "\n<br>\n" + "".join(statistics) + "\n</div>"
 
 
 def render_artwork(totals, dark=True, mobile=False):

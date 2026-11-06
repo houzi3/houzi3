@@ -52,35 +52,29 @@ class ProfileTests(unittest.TestCase):
         for index, picture in enumerate(parser.pictures):
             theme = "light" if index % 2 == 0 else "dark"
             fragment = f"#gh-{theme}-mode-only"
-            kind, extension = ("profile", "gif") if index < 2 else ("stats", "svg")
-            self.assertEqual(parser.picture_links[index],
-                             f"assets/{kind}-{theme}.{extension}{fragment}")
+            path = f"profile-{theme}-wide.gif" if index < 2 else f"stats-{theme}.svg"
+            self.assertEqual(parser.picture_links[index], f"assets/{path}{fragment}")
             for image in picture:
                 self.assertTrue(image.get("srcset", image.get("src")).endswith(fragment))
 
-    def test_specific_static_sources_precede_animated_mobile_fallbacks(self):
+    def test_same_wide_artwork_is_used_for_every_viewport(self):
+        rendered = profile.render_stats(TOTALS)
+        self.assertNotIn("max-width", rendered)
+        self.assertNotIn("-mobile.", rendered)
         parser = Pictures()
-        parser.feed(profile.render_stats(TOTALS))
+        parser.feed(rendered)
         for index, theme in enumerate(("light", "dark")):
             hero = parser.pictures[index]
-            self.assertEqual(len(hero), 4)
-            self.assertEqual([source["media"] for source in hero[:-1]], [
-                "(max-width: 600px) and (prefers-reduced-motion: reduce)",
-                "(prefers-reduced-motion: reduce)",
-                "(max-width: 600px)",
-            ])
             fragment = f"#gh-{theme}-mode-only"
-            self.assertEqual([source["srcset"] for source in hero[:-1]], [
-                f"assets/profile-{theme}-mobile.png{fragment}",
-                f"assets/profile-{theme}.png{fragment}",
-                f"assets/profile-{theme}-mobile.gif{fragment}",
-            ])
-            self.assertEqual(hero[-1]["src"], f"assets/profile-{theme}.gif{fragment}")
+            self.assertEqual(len(hero), 2)
+            self.assertEqual(hero[0]["media"], "(prefers-reduced-motion: reduce)")
+            self.assertEqual(hero[0]["srcset"], f"assets/profile-{theme}-wide.png{fragment}")
+            self.assertEqual(hero[1]["src"], f"assets/profile-{theme}-wide.gif{fragment}")
+            self.assertEqual(hero[1]["width"], "960")
             stats = parser.pictures[index + 2]
-            self.assertEqual(stats[0]["media"], "(max-width: 600px)")
-            self.assertEqual(stats[0]["srcset"], f"assets/stats-{theme}-mobile.svg{fragment}")
-            self.assertEqual(stats[-1]["src"], f"assets/stats-{theme}.svg{fragment}")
-            self.assertIn("11,047 stars", stats[-1]["alt"])
+            self.assertEqual(len(stats), 1)
+            self.assertEqual(stats[0]["src"], f"assets/stats-{theme}.svg{fragment}")
+            self.assertIn("11,047 stars", stats[0]["alt"])
 
     def test_every_statistics_variant_has_one_shared_text_baseline(self):
         ns = {"svg": "http://www.w3.org/2000/svg"}
@@ -102,7 +96,7 @@ class ProfileTests(unittest.TestCase):
             root = Path(directory)
             assets = root / "assets"
             assets.mkdir()
-            artwork = assets / "profile-light.gif"
+            artwork = assets / "profile-light-wide.gif"
             artwork.write_bytes(b"unchanged animation")
             readme = root / "README.md"
             readme.write_text("<!-- stats:start -->\nold\n<!-- stats:end -->\nBlog and X\n")

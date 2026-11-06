@@ -3,8 +3,10 @@
 The selected Wukong illustration has matching light and dark treatments. The
 README uses GitHub's `#gh-light-mode-only` / `#gh-dark-mode-only` link contexts
 for the visitor's GitHub theme, including a manually selected theme that differs
-from the system setting. Inside each theme link, a picture element chooses a
-desktop or mobile GIF, with a PNG first-frame alternative for reduced motion.
+from the system setting. Every viewport uses the same selected wide composition,
+with no mobile crop or alternate layout. Inside each theme link, a picture element
+chooses only between the wide GIF and its PNG first frame for reduced motion.
+The wide artwork is rendered at 1920 × 704 and displayed at up to 960 px wide.
 The separate statistics SVGs remain sharp and are refreshed daily without
 rebuilding the animation.
 
@@ -12,7 +14,7 @@ The hero is a six-second, 90-frame seamless loop. A feathered displacement field
 follows the red ribbon, anchored near Wukong's shoulder. Only the ribbon and its
 immediate edge neighbourhood move; the figure, mountains and all text stay still.
 The desktop name is 34 px, smaller than the design mockup. The statistics share
-one baseline in both layouts.
+one baseline at every viewport width, using the same theme-specific statistics SVG.
 
 ## Rebuild
 

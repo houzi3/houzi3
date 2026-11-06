@@ -17,6 +17,8 @@ ROOT = Path(__file__).resolve().parents[1]
 FRAMES = 90
 DURATION_MS = 6000
 NAME_SIZE = 34
+SCALE = 2
+WIDTH, HEIGHT = 960 * SCALE, 420 * SCALE
 
 
 def font_path(override, candidates):
@@ -42,11 +44,10 @@ def fonts(latin=None, cjk=None):
         "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
     ))
     return {
-        "name": ImageFont.truetype(latin, NAME_SIZE),
-        "mobile_name": ImageFont.truetype(latin, 30),
-        "handle": ImageFont.truetype(latin, 12),
-        "tagline": ImageFont.truetype(cjk, 18),
-        "bio": ImageFont.truetype(latin, 14),
+        "name": ImageFont.truetype(latin, NAME_SIZE * SCALE),
+        "handle": ImageFont.truetype(latin, 12 * SCALE),
+        "tagline": ImageFont.truetype(cjk, 18 * SCALE),
+        "bio": ImageFont.truetype(latin, 14 * SCALE),
     }
 
 
@@ -59,14 +60,14 @@ class RibbonLoop:
     """
 
     def __init__(self, source):
-        image = Image.open(source).convert("RGB").resize((960, 420), Image.Resampling.LANCZOS)
+        image = Image.open(source).convert("RGB").resize((WIDTH, HEIGHT), Image.Resampling.LANCZOS)
         self.source = np.asarray(image).astype(np.float32)
-        self.y, self.x = np.mgrid[:420, :960].astype(np.float32)
+        self.y, self.x = np.mgrid[:HEIGHT, :WIDTH].astype(np.float32) / SCALE
         r, g, b = self.source.transpose(2, 0, 1)
         red = (r > 65) & (r > 1.8 * g) & (r > 1.55 * b)
         red &= (self.y < 180) & (self.x > 235)
         mask = Image.fromarray((red * 255).astype(np.uint8))
-        mask = mask.filter(ImageFilter.MaxFilter(25)).filter(ImageFilter.GaussianBlur(7))
+        mask = mask.filter(ImageFilter.MaxFilter(24 * SCALE + 1)).filter(ImageFilter.GaussianBlur(7 * SCALE))
         self.mask = np.asarray(mask).astype(np.float32) / 255
         ramp = np.clip((self.x - 235) / 590, 0, 1)
         self.ramp = ramp * ramp * (3 - 2 * ramp)
@@ -78,45 +79,38 @@ class RibbonLoop:
             3.6 * math.sin(phase) * np.cos(self.x / 215)
             + 1.1 * math.sin(2 * phase) * np.sin(self.x / 140)
         )
-        sy = np.clip(self.y - wave * self.mask * self.ramp, 0, 419)
-        sx = np.clip(self.x - 0.8 * math.sin(phase) * self.mask * self.ramp, 0, 959)
+        sy = np.clip((self.y - wave * self.mask * self.ramp) * SCALE, 0, HEIGHT - 1)
+        sx = np.clip((self.x - 0.8 * math.sin(phase) * self.mask * self.ramp) * SCALE, 0, WIDTH - 1)
         x0, y0 = sx.astype(np.int32), sy.astype(np.int32)
-        x1, y1 = np.minimum(x0 + 1, 959), np.minimum(y0 + 1, 419)
+        x1, y1 = np.minimum(x0 + 1, WIDTH - 1), np.minimum(y0 + 1, HEIGHT - 1)
         fx, fy = (sx - x0)[..., None], (sy - y0)[..., None]
         top = self.source[y0, x0] * (1 - fx) + self.source[y0, x1] * fx
         bottom = self.source[y1, x0] * (1 - fx) + self.source[y1, x1] * fx
         return Image.fromarray(np.rint(top * (1 - fy) + bottom * fy).astype(np.uint8))
 
 
-def compose(image, dark, mobile, typefaces):
-    background = (13, 17, 23) if dark else (255, 255, 255)
+def compose(image, dark, typefaces):
     primary = (232, 230, 225) if dark else (35, 35, 35)
     secondary = (164, 170, 178) if dark else (114, 114, 114)
-    if mobile:
-        scene = image.crop((0, 0, 690, 380)).resize((480, 264), Image.Resampling.LANCZOS)
-        fade = np.ones((264, 480), dtype=np.uint8) * 255
-        fade[216:] = np.linspace(255, 0, 48, dtype=np.uint8)[:, None]
-        canvas = Image.new("RGB", (480, 390), background)
-        canvas.paste(scene, (0, 0), Image.fromarray(fade))
-        x, handle_y, name_y, tagline_y, bio_y = 24, 276, 317, 350, 378
-    else:
-        canvas = image.crop((0, 0, 960, 352))
-        x, handle_y, name_y, tagline_y, bio_y = 525, 151, 204, 239, 264
+    # Preserve the selected wide composition at every display size. A separately
+    # cropped mobile layout changed the approved framing and could be upscaled.
+    canvas = image.crop((0, 0, WIDTH, 352 * SCALE))
+    x, handle_y, name_y, tagline_y, bio_y = 525, 151, 204, 239, 264
     draw = ImageDraw.Draw(canvas)
     for text, y, font, color in (
         ("houzi3 /", handle_y, typefaces["handle"], primary),
-        ("Jaeger", name_y, typefaces["mobile_name" if mobile else "name"], primary),
+        ("Jaeger", name_y, typefaces["name"], primary),
         ("一只好奇的猴子。", tagline_y, typefaces["tagline"], primary),
         ("Software engineer in Shanghai.", bio_y, typefaces["bio"], secondary),
     ):
-        draw.text((x, y), text, font=font, fill=color, anchor="ls")
+        draw.text((x * SCALE, y * SCALE), text, font=font, fill=color, anchor="ls")
     return canvas
 
 
-def build_variant(loop, theme, mobile, typefaces, output):
+def build_variant(loop, theme, typefaces, output):
     dark = theme == "dark"
-    stem = f"profile-{theme}{'-mobile' if mobile else ''}"
-    first = compose(loop.frame(0), dark, mobile, typefaces)
+    stem = f"profile-{theme}-wide"
+    first = compose(loop.frame(0), dark, typefaces)
     first.save(output / f"{stem}.png", optimize=True)
     target = output / f"{stem}.gif"
     # A shared palette and ordered dither keep stationary pixels fixed, unlike
@@ -132,7 +126,7 @@ def build_variant(loop, theme, mobile, typefaces, output):
     with subprocess.Popen(command, stdin=subprocess.PIPE, stderr=subprocess.PIPE) as process:
         try:
             for index in range(FRAMES):
-                image = first if index == 0 else compose(loop.frame(index), dark, mobile, typefaces)
+                image = first if index == 0 else compose(loop.frame(index), dark, typefaces)
                 process.stdin.write(image.tobytes())
             process.stdin.close()
         except BrokenPipeError:
@@ -153,8 +147,7 @@ def main():
     output = ROOT / "assets"
     for theme in ("light", "dark") if args.theme == "all" else (args.theme,):
         loop = RibbonLoop(output / "source" / f"wukong-{theme}.png")
-        for mobile in (False, True):
-            build_variant(loop, theme, mobile, typefaces, output)
+        build_variant(loop, theme, typefaces, output)
 
 
 if __name__ == "__main__":

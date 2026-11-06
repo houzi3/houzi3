@@ -14,37 +14,71 @@ SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "update_profile.py"
 SPEC = importlib.util.spec_from_file_location("update_profile", SCRIPT)
 profile = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(profile)
-TOTALS = {"stars": 11049, "forks": 2084, "followers": 850, "repositories": 32}
+TOTALS = {"stars": 11047, "forks": 2082, "followers": 850, "repositories": 32}
 
 
 class Pictures(HTMLParser):
     def __init__(self):
         super().__init__()
         self.pictures = []
+        self.picture_links = []
+        self.active_href = None
 
     def handle_starttag(self, tag, attrs):
-        if tag == "picture":
+        if tag == "a":
+            self.active_href = dict(attrs).get("href")
+        elif tag == "picture":
             self.pictures.append([])
+            self.picture_links.append(self.active_href)
         elif tag in ("source", "img"):
             self.pictures[-1].append(dict(attrs))
 
+    def handle_endtag(self, tag):
+        if tag == "a":
+            self.active_href = None
+
 
 class ProfileTests(unittest.TestCase):
-    def test_specific_static_sources_precede_animated_theme_fallbacks(self):
+    def test_theme_fragments_follow_github_theme_without_os_color_queries(self):
+        rendered = profile.render_stats(TOTALS)
+        self.assertNotIn("prefers-color-scheme", rendered)
+        self.assertEqual(rendered.count("</picture></a><a "), 2)
+        self.assertEqual(rendered.count("<br>"), 1)
+        parser = Pictures()
+        parser.feed(rendered)
+        self.assertEqual(len(parser.pictures), 4)
+        for index, picture in enumerate(parser.pictures):
+            theme = "light" if index % 2 == 0 else "dark"
+            fragment = f"#gh-{theme}-mode-only"
+            kind, extension = ("profile", "gif") if index < 2 else ("stats", "svg")
+            self.assertEqual(parser.picture_links[index],
+                             f"assets/{kind}-{theme}.{extension}{fragment}")
+            for image in picture:
+                self.assertTrue(image.get("srcset", image.get("src")).endswith(fragment))
+
+    def test_specific_static_sources_precede_animated_mobile_fallbacks(self):
         parser = Pictures()
         parser.feed(profile.render_stats(TOTALS))
-        hero, stats = parser.pictures
-        self.assertEqual(len(hero), 9)
-        for index, source in enumerate(hero[:-1]):
-            self.assertEqual("prefers-reduced-motion: reduce" in source["media"], index < 4)
-            self.assertEqual(source["srcset"].endswith(".png"), index < 4)
-            self.assertEqual("max-width: 600px" in source["media"], index % 4 < 2)
-            self.assertEqual("-mobile." in source["srcset"], index % 4 < 2)
-        self.assertEqual(hero[0]["srcset"], "assets/profile-dark-mobile.png")
-        self.assertEqual(hero[-1]["src"], "assets/profile-light.gif")
-        self.assertEqual(stats[0]["srcset"], "assets/stats-dark-mobile.svg")
-        self.assertEqual(stats[-1]["src"], "assets/stats-light.svg")
-        self.assertIn("11,049 stars", stats[-1]["alt"])
+        for index, theme in enumerate(("light", "dark")):
+            hero = parser.pictures[index]
+            self.assertEqual(len(hero), 4)
+            self.assertEqual([source["media"] for source in hero[:-1]], [
+                "(max-width: 600px) and (prefers-reduced-motion: reduce)",
+                "(prefers-reduced-motion: reduce)",
+                "(max-width: 600px)",
+            ])
+            fragment = f"#gh-{theme}-mode-only"
+            self.assertEqual([source["srcset"] for source in hero[:-1]], [
+                f"assets/profile-{theme}-mobile.png{fragment}",
+                f"assets/profile-{theme}.png{fragment}",
+                f"assets/profile-{theme}-mobile.gif{fragment}",
+            ])
+            self.assertEqual(hero[-1]["src"], f"assets/profile-{theme}.gif{fragment}")
+            stats = parser.pictures[index + 2]
+            self.assertEqual(stats[0]["media"], "(max-width: 600px)")
+            self.assertEqual(stats[0]["srcset"], f"assets/stats-{theme}-mobile.svg{fragment}")
+            self.assertEqual(stats[-1]["src"], f"assets/stats-{theme}.svg{fragment}")
+            self.assertIn("11,047 stars", stats[-1]["alt"])
 
     def test_every_statistics_variant_has_one_shared_text_baseline(self):
         ns = {"svg": "http://www.w3.org/2000/svg"}

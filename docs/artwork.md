@@ -1,9 +1,12 @@
 # Profile artwork
 
 The selected Wukong illustration has matching light and dark treatments. The
-README chooses a desktop or mobile GIF for the visitor's theme, with a PNG
-first-frame alternative for reduced motion. The separate statistics SVGs remain
-sharp and are refreshed daily without rebuilding the animation.
+README uses GitHub's `#gh-light-mode-only` / `#gh-dark-mode-only` link contexts
+for the visitor's GitHub theme, including a manually selected theme that differs
+from the system setting. Inside each theme link, a picture element chooses a
+desktop or mobile GIF, with a PNG first-frame alternative for reduced motion.
+The separate statistics SVGs remain sharp and are refreshed daily without
+rebuilding the animation.
 
 The hero is a six-second, 90-frame seamless loop. A feathered displacement field
 follows the red ribbon, anchored near Wukong's shoulder. Only the ribbon and its

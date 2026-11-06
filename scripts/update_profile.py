@@ -59,45 +59,38 @@ def totals_description(totals):
 
 
 def render_stats(totals):
-    # Specific mobile/reduced-motion sources must precede broader theme matches.
-    hero_sources = []
-    for reduced_motion in (True, False):
-        extension = "png" if reduced_motion else "gif"
-        for mobile, theme in ((True, "dark"), (True, "light"),
-                              (False, "dark"), (False, "light")):
-            conditions = []
-            if mobile:
-                conditions.append("(max-width: 600px)")
-            conditions.append(f"(prefers-color-scheme: {theme})")
-            if reduced_motion:
-                conditions.append("(prefers-reduced-motion: reduce)")
-            media = " and ".join(conditions)
-            suffix = "-mobile" if mobile else ""
-            hero_sources.append(
-                f'  <source media="{media}" '
-                f'srcset="assets/profile-{theme}{suffix}.{extension}">'
-            )
-    hero = "\n".join([
-        "<picture>",
-        *hero_sources,
-        '  <img src="assets/profile-light.gif" width="960" '
-        'alt="Jaeger · 一只好奇的猴子。Software engineer in Shanghai. '
-        'Sun Wukong stands above the clouds with a gently flowing red ribbon.">',
-        "</picture>",
-    ])
-    stats = "\n".join([
-        "<picture>",
-        '  <source media="(max-width: 600px) and (prefers-color-scheme: dark)" '
-        'srcset="assets/stats-dark-mobile.svg">',
-        '  <source media="(max-width: 600px) and (prefers-color-scheme: light)" '
-        'srcset="assets/stats-light-mobile.svg">',
-        '  <source media="(prefers-color-scheme: dark)" '
-        'srcset="assets/stats-dark.svg">',
-        f'  <img src="assets/stats-light.svg" width="960" '
-        f'alt="{totals_description(totals)}">',
-        "</picture>",
-    ])
-    return f"{hero}\n<br>\n{stats}"
+    # Bind visibility explicitly to GitHub's selected theme, including manual
+    # overrides. The wrapper links are required because GitHub applies theme
+    # visibility to href; picture sources only handle layout and motion.
+    heroes = []
+    statistics = []
+    for theme in ("light", "dark"):
+        fragment = f"#gh-{theme}-mode-only"
+        hero = "\n".join([
+            "<picture>",
+            '  <source media="(max-width: 600px) and (prefers-reduced-motion: reduce)" '
+            f'srcset="assets/profile-{theme}-mobile.png{fragment}">',
+            '  <source media="(prefers-reduced-motion: reduce)" '
+            f'srcset="assets/profile-{theme}.png{fragment}">',
+            '  <source media="(max-width: 600px)" '
+            f'srcset="assets/profile-{theme}-mobile.gif{fragment}">',
+            f'  <img src="assets/profile-{theme}.gif{fragment}" width="960" '
+            'alt="Jaeger · 一只好奇的猴子。Software engineer in Shanghai. '
+            'Sun Wukong stands above the clouds with a gently flowing red ribbon.">',
+            "</picture>",
+        ])
+        heroes.append(f'<a href="assets/profile-{theme}.gif{fragment}">{hero}</a>')
+        stats = "\n".join([
+            "<picture>",
+            '  <source media="(max-width: 600px)" '
+            f'srcset="assets/stats-{theme}-mobile.svg{fragment}">',
+            f'  <img src="assets/stats-{theme}.svg{fragment}" width="960" '
+            f'alt="{totals_description(totals)}">',
+            "</picture>",
+        ])
+        statistics.append(f'<a href="assets/stats-{theme}.svg{fragment}">{stats}</a>')
+    # Keep alternative themes adjacent so hidden pictures leave no blank rows.
+    return "".join(heroes) + "\n<br>\n" + "".join(statistics)
 
 
 def render_artwork(totals, dark=True, mobile=False):

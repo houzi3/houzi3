@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="48" viewBox="0 0 480 48" role="img" aria-labelledby="title description">
+<title id="title">Public GitHub totals</title>
+<desc id="description">11,047 stars · 2,082 forks · 850 followers · 32 public repos</desc>
+<rect width="480" height="48" fill="#ffffff"/>
+<path d="M24 1 H456" stroke="#dce0e4" stroke-width="1"/>
+<text x="240" y="29" text-anchor="middle" font-family="'Helvetica Neue', 'Segoe UI', Arial, sans-serif" font-weight="400" xml:space="preserve"><tspan fill="#252525" font-size="16">11,047</tspan><tspan fill="#72757a" font-size="14"> stars</tspan><tspan fill="#72757a">  ·  </tspan><tspan fill="#252525" font-size="16">2,082</tspan><tspan fill="#72757a" font-size="14"> forks</tspan><tspan fill="#72757a">  ·  </tspan><tspan fill="#252525" font-size="16">850</tspan><tspan fill="#72757a" font-size="14"> followers</tspan><tspan fill="#72757a">  ·  </tspan><tspan fill="#252525" font-size="16">32</tspan><tspan fill="#72757a" font-size="14"> public repos</tspan></text>
+</svg>

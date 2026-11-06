@@ -1,0 +1,3 @@
+# Only needed to rebuild the animated artwork, not for the daily statistics job.
+Pillow==13.0.0
+numpy==2.5.4

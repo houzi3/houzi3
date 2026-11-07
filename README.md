@@ -9,9 +9,9 @@
 </picture></a>
 <br>
 <a href="assets/stats-light.svg#gh-light-mode-only"><picture>
-  <img src="assets/stats-light.svg#gh-light-mode-only" width="960" alt="11,047 stars · 2,082 forks · 850 followers · 32 public repos">
+  <img src="assets/stats-light.svg#gh-light-mode-only" width="960" alt="11,046 stars · 2,082 forks · 850 followers · 32 public repos">
 </picture></a><a href="assets/stats-dark.svg#gh-dark-mode-only"><picture>
-  <img src="assets/stats-dark.svg#gh-dark-mode-only" width="960" alt="11,047 stars · 2,082 forks · 850 followers · 32 public repos">
+  <img src="assets/stats-dark.svg#gh-dark-mode-only" width="960" alt="11,046 stars · 2,082 forks · 850 followers · 32 public repos">
 </picture></a>
 </div>
 <!-- stats:end -->

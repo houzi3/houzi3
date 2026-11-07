@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="480" height="48" viewBox="0 0 480 48" role="img" aria-labelledby="title description">
 <title id="title">Public GitHub totals</title>
-<desc id="description">11,047 stars · 2,082 forks · 850 followers · 32 public repos</desc>
+<desc id="description">11,046 stars · 2,082 forks · 850 followers · 32 public repos</desc>
 <rect width="480" height="48" fill="#0d1117"/>
 <path d="M24 1 H456" stroke="#343a42" stroke-width="1"/>
-<text x="240" y="29" text-anchor="middle" font-family="'Helvetica Neue', 'Segoe UI', Arial, sans-serif" font-weight="400" xml:space="preserve"><tspan fill="#e8e6e1" font-size="16">11,047</tspan><tspan fill="#a5abb3" font-size="14"> stars</tspan><tspan fill="#a5abb3">  ·  </tspan><tspan fill="#e8e6e1" font-size="16">2,082</tspan><tspan fill="#a5abb3" font-size="14"> forks</tspan><tspan fill="#a5abb3">  ·  </tspan><tspan fill="#e8e6e1" font-size="16">850</tspan><tspan fill="#a5abb3" font-size="14"> followers</tspan><tspan fill="#a5abb3">  ·  </tspan><tspan fill="#e8e6e1" font-size="16">32</tspan><tspan fill="#a5abb3" font-size="14"> public repos</tspan></text>
+<text x="240" y="29" text-anchor="middle" font-family="'Helvetica Neue', 'Segoe UI', Arial, sans-serif" font-weight="400" xml:space="preserve"><tspan fill="#e8e6e1" font-size="16">11,046</tspan><tspan fill="#a5abb3" font-size="14"> stars</tspan><tspan fill="#a5abb3">  ·  </tspan><tspan fill="#e8e6e1" font-size="16">2,082</tspan><tspan fill="#a5abb3" font-size="14"> forks</tspan><tspan fill="#a5abb3">  ·  </tspan><tspan fill="#e8e6e1" font-size="16">850</tspan><tspan fill="#a5abb3" font-size="14"> followers</tspan><tspan fill="#a5abb3">  ·  </tspan><tspan fill="#e8e6e1" font-size="16">32</tspan><tspan fill="#a5abb3" font-size="14"> public repos</tspan></text>
 </svg>

@@ -3,14 +3,13 @@
 from html.parser import HTMLParser
 import importlib.util
 from pathlib import Path
-import re
 import tempfile
 import unittest
 from unittest.mock import patch
-import xml.etree.ElementTree as ET
 
 
-SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "update_profile.py"
+ROOT = Path(__file__).resolve().parents[1]
+SCRIPT = ROOT / "scripts" / "update_profile.py"
 SPEC = importlib.util.spec_from_file_location("update_profile", SCRIPT)
 profile = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(profile)
@@ -39,77 +38,51 @@ class Pictures(HTMLParser):
 
 
 class ProfileTests(unittest.TestCase):
-    def test_theme_fragments_follow_github_theme_without_os_color_queries(self):
-        rendered = profile.render_stats(TOTALS)
-        self.assertTrue(rendered.startswith("<div>\n"))
-        self.assertTrue(rendered.endswith("\n</div>"))
-        self.assertNotIn("prefers-color-scheme", rendered)
-        self.assertEqual(rendered.count("</picture></a><a "), 2)
-        self.assertEqual(rendered.count("<br>"), 1)
+    def test_readme_selects_artwork_by_github_theme_and_motion_preference(self):
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        hero, _, _ = readme.partition("<!-- stats:start -->")
         parser = Pictures()
-        parser.feed(rendered)
-        self.assertEqual(len(parser.pictures), 4)
-        for index, picture in enumerate(parser.pictures):
-            theme = "light" if index % 2 == 0 else "dark"
-            fragment = f"#gh-{theme}-mode-only"
-            path = f"profile-{theme}-wide.gif" if index < 2 else f"stats-{theme}.svg"
-            self.assertEqual(parser.picture_links[index], f"assets/{path}{fragment}")
-            for image in picture:
-                self.assertTrue(image.get("srcset", image.get("src")).endswith(fragment))
-
-    def test_same_wide_artwork_is_used_for_every_viewport(self):
-        rendered = profile.render_stats(TOTALS)
-        self.assertNotIn("max-width", rendered)
-        self.assertNotIn("-mobile.", rendered)
-        parser = Pictures()
-        parser.feed(rendered)
+        parser.feed(hero)
+        self.assertEqual(len(parser.pictures), 2)
+        self.assertNotIn("prefers-color-scheme", hero)
+        self.assertNotIn("max-width", hero)
         for index, theme in enumerate(("light", "dark")):
-            hero = parser.pictures[index]
             fragment = f"#gh-{theme}-mode-only"
-            self.assertEqual(len(hero), 2)
-            self.assertEqual(hero[0]["media"], "(prefers-reduced-motion: reduce)")
-            self.assertEqual(hero[0]["srcset"], f"assets/profile-{theme}-wide.png{fragment}")
-            self.assertEqual(hero[1]["src"], f"assets/profile-{theme}-wide.gif{fragment}")
-            self.assertEqual(hero[1]["width"], "960")
-            stats = parser.pictures[index + 2]
-            self.assertEqual(len(stats), 1)
-            self.assertEqual(stats[0]["src"], f"assets/stats-{theme}.svg{fragment}")
-            self.assertIn("11,047 stars", stats[0]["alt"])
+            expected_svg = f"assets/ribbon-{theme}.svg{fragment}"
+            self.assertEqual(parser.picture_links[index], expected_svg)
+            source, image = parser.pictures[index]
+            self.assertEqual(source["media"], "(prefers-reduced-motion: reduce)")
+            self.assertEqual(source["srcset"], f"assets/ribbon-{theme}.jpg{fragment}")
+            self.assertEqual(image["src"], expected_svg)
+            self.assertEqual(image["width"], "960")
+            self.assertIn("Wukong", image["alt"])
+            self.assertNotIn("Jaeger", image["alt"])
+        self.assertIn("<strong>Jaeger</strong> · 一只好奇的猴子。", hero)
+        self.assertIn("<sub>Software engineer in Shanghai.</sub>", hero)
 
-    def test_every_statistics_variant_has_one_shared_text_baseline(self):
-        ns = {"svg": "http://www.w3.org/2000/svg"}
-        for dark in (False, True):
-            for mobile in (False, True):
-                with self.subTest(dark=dark, mobile=mobile):
-                    root = ET.fromstring(profile.render_artwork(TOTALS, dark, mobile))
-                    lines = root.findall("svg:text", ns)
-                    self.assertEqual(len(lines), 1)
-                    actual = re.sub(r"\s+", " ", "".join(lines[0].itertext())).strip()
-                    self.assertEqual(actual, profile.totals_description(TOTALS))
-                    self.assertTrue(all("y" not in span.attrib for span in lines[0]))
-                    self.assertEqual(root.attrib["width"], "480" if mobile else "960")
-                    self.assertEqual(root.find("svg:rect", ns).attrib["fill"],
-                                     "#0d1117" if dark else "#ffffff")
+    def test_statistics_are_one_paragraph_of_selectable_text(self):
+        self.assertEqual(profile.render_stats(TOTALS),
+                         '<p align="center"><sub><strong>11,047</strong>&nbsp;stars · '
+                         '<strong>2,082</strong>&nbsp;forks · <strong>850</strong>&nbsp;followers · '
+                         '<strong>32</strong>&nbsp;repos</sub></p>')
 
-    def test_refresh_is_idempotent_and_preserves_artwork_and_links(self):
+    def test_refresh_only_replaces_stats_marker_and_is_idempotent(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            assets = root / "assets"
-            assets.mkdir()
-            artwork = assets / "profile-light-wide.gif"
-            artwork.write_bytes(b"unchanged animation")
             readme = root / "README.md"
-            readme.write_text("<!-- stats:start -->\nold\n<!-- stats:end -->\nBlog and X\n")
+            published = (ROOT / "README.md").read_text(encoding="utf-8")
+            before, _, rest = published.partition("<!-- stats:start -->")
+            _, _, after = rest.partition("<!-- stats:end -->")
+            readme.write_text(f"{before}<!-- stats:start -->\nold\n<!-- stats:end -->{after}",
+                              encoding="utf-8")
             profile.update_readme(readme, TOTALS)
-            profile.update_artwork(assets, TOTALS)
-            before = {path.name: path.stat().st_mtime_ns for path in root.rglob("*") if path.is_file()}
+            stats = profile.render_stats(TOTALS)
+            self.assertEqual(readme.read_text(encoding="utf-8"),
+                             f"{before}<!-- stats:start -->\n{stats}\n<!-- stats:end -->{after}")
+            changed_at = readme.stat().st_mtime_ns
             profile.update_readme(readme, TOTALS)
-            profile.update_artwork(assets, TOTALS)
-            after = {path.name: path.stat().st_mtime_ns for path in root.rglob("*") if path.is_file()}
-            self.assertEqual(before, after)
-            self.assertEqual(artwork.read_bytes(), b"unchanged animation")
-            self.assertIn("Blog and X", readme.read_text())
-            self.assertEqual(len(list(assets.glob("stats-*.svg"))), 4)
+            self.assertEqual(readme.stat().st_mtime_ns, changed_at)
+            self.assertEqual(list(root.iterdir()), [readme])
 
     def test_collect_totals_paginates_deduplicates_and_filters_ownership(self):
         def repo(index, owner=7, private=False):

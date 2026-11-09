@@ -1,40 +1,54 @@
-"""Verify playback, loop timing, and stationary type/character regions."""
+"""Verify the SVG loop, embedded artwork, and reduced-motion image."""
 
+import base64
+import io
 from pathlib import Path
+from xml.etree import ElementTree as ET
 
-import numpy as np
 from PIL import Image
+
+SVG = "{http://www.w3.org/2000/svg}"
+HREF = "{http://www.w3.org/1999/xlink}href"
+
+
+def image_data(element, kind):
+    prefix, payload = element.attrib[HREF].split(",", 1)
+    assert prefix == f"data:image/{kind};base64"
+    return base64.b64decode(payload, validate=True)
 
 
 def check(path):
-    with Image.open(path) as animation:
-        expected_size = (1920, 704)
-        assert animation.size == expected_size, (path, animation.size)
-        assert animation.info.get("loop") == 0, f"{path}: not an infinite loop"
-        assert animation.n_frames == 90, f"{path}: expected 90 frames"
-        frames, duration = [], 0
-        for index in range(animation.n_frames):
-            animation.seek(index)
-            duration += animation.info["duration"]
-            if index in (0, 22, 67, 89):
-                frames.append(np.asarray(animation.convert("RGB")))
-        assert duration == 6000, (path, duration)
-    first, quarter, three_quarters, last = frames
-    assert np.count_nonzero(first != quarter) > 1000, f"{path}: no visible ribbon motion"
-    # Below the ribbon and left of its shoulder anchor, all pixels must stay fixed.
-    floor, left = 410, 470
-    for other in frames[1:]:
-        assert np.array_equal(first[floor:], other[floor:]), f"{path}: text/landscape moved"
-        assert np.array_equal(first[:, :left], other[:, :left]), f"{path}: figure moved"
-    seam = np.abs(first.astype(float) - last.astype(float)).mean()
-    peak = np.abs(quarter.astype(float) - three_quarters.astype(float)).mean()
-    assert seam < peak * 0.35, f"{path}: visible loop seam ({seam} vs {peak})"
-    assert path.stat().st_size < 10_000_000, f"{path}: animation too large"
-    assert path.with_suffix(".png").is_file(), f"{path}: static alternative missing"
-    print(f"PASS {path.name}: 90 frames, 6 s, fixed text/figure, seam={seam:.3f}")
+    root = ET.parse(path).getroot()
+    assert root.attrib["viewBox"] == "0 0 960 352", path
+    assert path.stat().st_size < 350_000, path
+    assert root.find(f".//{SVG}text") is None, path
+
+    photo = image_data(root.find(f".//{SVG}image"), "jpeg")
+    assert path.with_suffix(".jpg").read_bytes() == photo, path
+    with Image.open(io.BytesIO(photo)) as image:
+        assert image.size == (1920, 704), path
+
+    maps = root.findall(f".//{SVG}feImage")
+    assert len(maps) == 2, path
+    for offset in maps:
+        with Image.open(io.BytesIO(image_data(offset, "png"))) as image:
+            assert image.size == (740, 202), path
+            assert image.getpixel((0, 0)) == (128, 128, 128), path
+            assert any(low != high for low, high in image.getextrema()[:2]), path
+
+    loops = root.findall(f".//{SVG}feDisplacementMap/{SVG}animate")
+    assert len(loops) == 2, path
+    for loop in loops:
+        assert loop.attrib["attributeName"] == "scale", path
+        assert loop.attrib["dur"] == "6s", path
+        assert loop.attrib["repeatCount"] == "indefinite", path
+        scales = loop.attrib["values"].split(";")
+        assert scales[0] == scales[-1] and len(set(scales)) > 1, path
+    assert loops[0].attrib["values"] != loops[1].attrib["values"], path
+    print(f"PASS {path.name}: {path.stat().st_size:,} bytes, 6 s, matching still")
 
 
 if __name__ == "__main__":
     assets = Path(__file__).resolve().parents[1] / "assets"
     for theme in ("light", "dark"):
-        check(assets / f"profile-{theme}-wide.gif")
+        check(assets / f"ribbon-{theme}.svg")

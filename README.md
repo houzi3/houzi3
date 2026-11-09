@@ -1,19 +1,17 @@
-<!-- stats:start -->
 <div>
-<a href="assets/profile-light-wide.gif#gh-light-mode-only"><picture>
-  <source media="(prefers-reduced-motion: reduce)" srcset="assets/profile-light-wide.png#gh-light-mode-only">
-  <img src="assets/profile-light-wide.gif#gh-light-mode-only" width="960" alt="Jaeger · 一只好奇的猴子。Software engineer in Shanghai. Sun Wukong stands above the clouds with a gently flowing red ribbon.">
-</picture></a><a href="assets/profile-dark-wide.gif#gh-dark-mode-only"><picture>
-  <source media="(prefers-reduced-motion: reduce)" srcset="assets/profile-dark-wide.png#gh-dark-mode-only">
-  <img src="assets/profile-dark-wide.gif#gh-dark-mode-only" width="960" alt="Jaeger · 一只好奇的猴子。Software engineer in Shanghai. Sun Wukong stands above the clouds with a gently flowing red ribbon.">
-</picture></a>
-<br>
-<a href="assets/stats-light.svg#gh-light-mode-only"><picture>
-  <img src="assets/stats-light.svg#gh-light-mode-only" width="960" alt="11,046 stars · 2,082 forks · 850 followers · 32 public repos">
-</picture></a><a href="assets/stats-dark.svg#gh-dark-mode-only"><picture>
-  <img src="assets/stats-dark.svg#gh-dark-mode-only" width="960" alt="11,046 stars · 2,082 forks · 850 followers · 32 public repos">
+<a href="assets/ribbon-light.svg#gh-light-mode-only"><picture>
+  <source media="(prefers-reduced-motion: reduce)" srcset="assets/ribbon-light.jpg#gh-light-mode-only">
+  <img src="assets/ribbon-light.svg#gh-light-mode-only" width="960" alt="Sun Wukong stands above the clouds with a flowing red ribbon.">
+</picture></a><a href="assets/ribbon-dark.svg#gh-dark-mode-only"><picture>
+  <source media="(prefers-reduced-motion: reduce)" srcset="assets/ribbon-dark.jpg#gh-dark-mode-only">
+  <img src="assets/ribbon-dark.svg#gh-dark-mode-only" width="960" alt="Sun Wukong stands above the clouds with a flowing red ribbon.">
 </picture></a>
 </div>
+
+<p align="center"><strong>Jaeger</strong> · 一只好奇的猴子。<br><sub>Software engineer in Shanghai.</sub></p>
+
+<!-- stats:start -->
+<p align="center"><sub><strong>11,046</strong>&nbsp;stars · <strong>2,082</strong>&nbsp;forks · <strong>850</strong>&nbsp;followers · <strong>32</strong>&nbsp;repos</sub></p>
 <!-- stats:end -->
 
 <p align="center">

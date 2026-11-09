@@ -57,10 +57,14 @@ def render_stats(totals):
         ("followers", "followers"),
         ("repositories", "repos"),
     )
-    line = " · ".join(
+    items = [
         f"<strong>{totals[key]:,}</strong>&nbsp;{label}" for key, label in metrics
-    )
-    return f'<p align="center">{line}</p>'
+    ]
+    # Keep each pair together so the row wraps evenly on a narrow README.
+    divider = "&nbsp;·&nbsp;"
+    activity = divider.join(items[:2])
+    community = divider.join(items[2:])
+    return f'<p align="center">{activity}&emsp;{community}</p>'
 
 
 def update_readme(path, totals):

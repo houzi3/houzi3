@@ -62,8 +62,8 @@ class ProfileTests(unittest.TestCase):
 
     def test_statistics_are_one_paragraph_of_selectable_text(self):
         self.assertEqual(profile.render_stats(TOTALS),
-                         '<p align="center"><strong>11,047</strong>&nbsp;stars · '
-                         '<strong>2,082</strong>&nbsp;forks · <strong>850</strong>&nbsp;followers · '
+                         '<p align="center"><strong>11,047</strong>&nbsp;stars&nbsp;·&nbsp;'
+                         '<strong>2,082</strong>&nbsp;forks&emsp;<strong>850</strong>&nbsp;followers&nbsp;·&nbsp;'
                          '<strong>32</strong>&nbsp;repos</p>')
 
     def test_refresh_only_replaces_stats_marker_and_is_idempotent(self):

@@ -11,7 +11,7 @@
 <p align="center"><strong>Jaeger</strong> · 一只好奇的猴子。<br><sub>Software engineer in Shanghai.</sub></p>
 
 <!-- stats:start -->
-<p align="center"><sub><strong>11,046</strong>&nbsp;stars · <strong>2,082</strong>&nbsp;forks · <strong>850</strong>&nbsp;followers · <strong>32</strong>&nbsp;repos</sub></p>
+<p align="center"><sub><strong>11,044</strong>&nbsp;stars · <strong>2,082</strong>&nbsp;forks · <strong>849</strong>&nbsp;followers · <strong>32</strong>&nbsp;repos</sub></p>
 <!-- stats:end -->
 
 <p align="center">

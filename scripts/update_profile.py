@@ -60,7 +60,7 @@ def render_stats(totals):
     line = " · ".join(
         f"<strong>{totals[key]:,}</strong>&nbsp;{label}" for key, label in metrics
     )
-    return f'<p align="center"><sub>{line}</sub></p>'
+    return f'<p align="center">{line}</p>'
 
 
 def update_readme(path, totals):

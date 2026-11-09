@@ -8,10 +8,12 @@
 </picture></a>
 </div>
 
-<p align="center"><strong>Jaeger</strong> · 一只好奇的猴子。<br><sub>Software engineer in Shanghai.</sub></p>
+<h3 align="center">Jaeger · 一只好奇的猴子。</h3>
+
+<p align="center">Software engineer in Shanghai.</p>
 
 <!-- stats:start -->
-<p align="center"><sub><strong>11,044</strong>&nbsp;stars · <strong>2,082</strong>&nbsp;forks · <strong>849</strong>&nbsp;followers · <strong>32</strong>&nbsp;repos</sub></p>
+<p align="center"><strong>11,044</strong>&nbsp;stars · <strong>2,082</strong>&nbsp;forks · <strong>849</strong>&nbsp;followers · <strong>32</strong>&nbsp;repos</p>
 <!-- stats:end -->
 
 <p align="center">

@@ -13,7 +13,7 @@
 <p align="center">Software engineer in Shanghai.</p>
 
 <!-- stats:start -->
-<p align="center"><strong>11,043</strong>&nbsp;stars&nbsp;·&nbsp;<strong>2,081</strong>&nbsp;forks&emsp;<strong>849</strong>&nbsp;followers&nbsp;·&nbsp;<strong>32</strong>&nbsp;repos</p>
+<p align="center"><strong>11,042</strong>&nbsp;stars&nbsp;·&nbsp;<strong>2,081</strong>&nbsp;forks&emsp;<strong>849</strong>&nbsp;followers&nbsp;·&nbsp;<strong>32</strong>&nbsp;repos</p>
 <!-- stats:end -->
 
 <p align="center">
